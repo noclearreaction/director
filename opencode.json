@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md"
+  ],
+  "default_agent": "advisor",
+  "agent": {
+    "build": {
+      "description": "Disabled during bootstrap to prevent premature implementation.",
+      "disable": true
+    },
+    "general": {
+      "description": "Disabled to enforce role-bounded conversations.",
+      "disable": true
+    }
+  }
+}
