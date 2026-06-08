@@ -6,8 +6,12 @@ description: >-
 mode: primary
 permission:
   bash: deny
-  edit: deny
-  task: deny
+  edit: 
+    "*": deny
+    ".symphony/scratchpad/*.md": allow
+  task:
+    "*": deny
+    "issue": allow
   todowrite: deny
   lsp: deny
 ---

@@ -4,14 +4,15 @@ mode: all
 permission:
   edit:
     "*": "ask"
-    "openspec/**/*": "deny"
-    ".opencode/**/*": "deny"
+    "openspec/*": "deny"
+    ".opencode/*": "deny"
     "bin/*.ts": "allow"
-    ".symphony/scratchpad/**/*": "allow"
+    "bin/*/*": "deny"
+    ".symphony/scratchpad/*.md": "allow"
     "openspec/changes/*/tasks.md": "allow"
   read:
     "*": allow
-    ".opencode/**": deny
+    ".opencode/*": deny
   bash:
     "*": "deny"
     "git *": "ask"

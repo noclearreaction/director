@@ -18,13 +18,13 @@ permission:
   # Prevent touching source code, config files, or scripts. Only permit design markdown.
   edit:
     "*": deny
-    "**/*.md": ask
-    "**/openspec/changes/**/*.md": allow
+    "*.md": ask
+    "openspec/changes/*.md": allow
 
   # Safe read-only and coordination tools
   read:
     "*": allow
-    ".opencode/**": deny
+    ".opencode/*": deny
 
   glob: allow
   grep: allow
