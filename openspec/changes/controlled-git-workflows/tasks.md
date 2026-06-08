@@ -5,7 +5,7 @@
 
 ## 2. Submit Script Integration
 
-- [ ] 2.1 Modify `bin/director-submit.ts` to run `bin/commit-lint.ts` and validate that any automatic commit messages conform to the Conventional Commit standard.
+- [x] 2.1 Modify `bin/director-submit.ts` to run `bin/commit-lint.ts` and validate that any automatic commit messages conform to the Conventional Commit standard.
 
 ## 3. Git Hook Configuration
 
