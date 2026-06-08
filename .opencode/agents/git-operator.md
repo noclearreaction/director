@@ -4,33 +4,26 @@ description: >-
 mode: subagent
 permission:
   edit:
-    ".symphony/scratchpad/*.md": allow
     "*": deny
+    ".symphony/scratchpad/*.md": allow
   read:
     "*": allow
   bash:
-    # Safe Git Commands (Allowed)
-    "git status": allow
-    "git status *": allow
-    "git diff": allow
-    "git diff *": allow
-    "git log": allow
-    "git log *": allow
-    "git add *": allow
-    "git commit -m *": allow
-    "git checkout -b change/*": allow
-    "git checkout change/*": allow
-    "git branch": allow
-    "git branch *": allow
+    # First: Broad catch-all deny to block unauthorized commands by default
+    "*": deny
 
-    # Safe GitHub Commands (Allowed)
-    "gh pr status": allow
-    "gh pr list": allow
-    "gh issue list": allow
-    "gh issue view *": allow
+    # Second: Dangerous git/gh command overrides (explicit deny)
+    "git push --force": deny
+    "git push -f": deny
+    "git push * --force": deny
+    "git push * -f": deny
+    "git reset --hard": deny
+    "git reset --hard *": deny
+    "git checkout --": deny
 
-    # Sensitive Commands (Ask)
+    # Third: Sensitive git/gh commands that require human permission (ask)
     "git checkout main": ask
+    "git pull": ask
     "git pull *": ask
     "git push": ask
     "git push *": ask
@@ -39,15 +32,24 @@ permission:
     "gh issue create *": ask
     "gh pr merge *": ask
 
-    # Dangerous Commands (Deny)
-    "git push --force": deny
-    "git push -f": deny
-    "git push * --force": deny
-    "git push * -f": deny
-    "git reset --hard": deny
-    "git reset --hard *": deny
-    "git checkout --": deny
-    "*": deny
+    # Fourth: Safe Git & GitHub commands that are automatically allowed (allow)
+    # Put these specific allowed patterns at the bottom so they override deny/*:
+    "git status": allow
+    "git status *": allow
+    "git diff": allow
+    "git diff *": allow
+    "git log": allow
+    "git log *": allow
+    "git branch": allow
+    "git branch *": allow
+    "git add *": allow
+    "git commit -m *": allow
+    "git checkout *": allow
+    "git checkout -b *": allow
+    "gh pr status": allow
+    "gh pr list": allow
+    "gh issue list": allow
+    "gh issue view *": allow
 ---
 
 # Git Operator Agent
