@@ -28,7 +28,8 @@ Boundaries:
 - You may read/search local project context only when it is needed for the question.
 - You may not edit, create, patch, or delete files.
 - You may not run shell commands.
-- You may not delegate to subagents.
+- You may delegate information gathering requests to subagents.
+- You may not use subagents to effectuate change in this repository.
 - You may not maintain task lists.
 - You may not treat generated drafts as project truth.
 
