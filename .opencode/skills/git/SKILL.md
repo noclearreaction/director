@@ -67,3 +67,19 @@ git status --short
 git diff
 git diff --staged
 git log --oneline -10
+```
+
+## Conventional Commits and Branch Rules
+
+To maintain high repository hygiene and strict alignment with Symphony's Constitution, you MUST adhere to the following rules:
+
+1. **Zero Commits to Main**: You are strictly prohibited from making direct commits to the `main` branch. All work must be done on dedicated topic branches named `change/<name>`.
+2. **Single-Topic Branching**: Each branch must correspond to exactly one OpenSpec change.
+3. **Conventional Commit Standard**: Every commit message you write MUST conform to Conventional Commits:
+   `<type>(<scope>): <subject>`
+   Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+4. **Atomic, Logical Commits**: Commit on each logical unit of work (e.g. after completing a specific file, class, or task in `tasks.md`). Never combine multiple unrelated changes into a single mega-commit.
+5. **Validation Gating**: Run the linter command to validate your commit message format before committing, or ensure that the git hooks are not bypassed:
+   ```bash
+   deno run --allow-read --allow-env bin/commit-lint.ts "your commit message"
+   ```
