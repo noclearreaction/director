@@ -96,6 +96,17 @@ if (noChangesToCommit) {
   console.log("No modifications staged to commit. Working tree is clean.");
 } else {
   const commitMsg = `docs(change): complete ${changeName} and promote specs`;
+  console.log("Validating commit message against Conventional Commits...");
+  const lintCmd = new Deno.Command("deno", {
+    args: ["run", "--allow-read", "--allow-env", "bin/commit-lint.ts", commitMsg]
+  });
+  const { success: lintSuccess, stderr: lintStderr, stdout: lintStdout } = await lintCmd.output();
+  if (!lintSuccess) {
+    const errText = new TextDecoder().decode(lintStderr.length ? lintStderr : lintStdout);
+    console.error(`%cError: Commit message validation failed:\n${errText}`, "color: red");
+    Deno.exit(1);
+  }
+
   console.log(`Committing synced changes: "${commitMsg}"`);
   const commitCmd = new Deno.Command("git", { args: ["commit", "-m", commitMsg] });
   const { success: commitSuccess } = await commitCmd.output();
