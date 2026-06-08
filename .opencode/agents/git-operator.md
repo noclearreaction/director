@@ -9,30 +9,23 @@ permission:
   read:
     "*": allow
   bash:
-    # First: Broad catch-all deny to block unauthorized commands by default
+    # First: Broad catch-all deny
     "*": deny
 
-    # Second: Dangerous git/gh command overrides (explicit deny)
-    "git push --force": deny
-    "git push -f": deny
-    "git push * --force": deny
-    "git push * -f": deny
-    "git reset --hard": deny
-    "git reset --hard *": deny
-    "git checkout --": deny
-
-    # Third: Sensitive git/gh commands that require human permission (ask)
+    # Second: Sensitive commands that transition state, modify branches, or sync remotes (ask)
     "git checkout main": ask
-    "git pull": ask
-    "git pull *": ask
     "git push": ask
     "git push *": ask
+    "git pull": ask
+    "git pull *": ask
+    "git reset": ask
+    "git reset *": ask
+    "git merge *": ask
     "git cherry-pick *": ask
-    "gh pr create *": ask
+    "gh pr *": ask
     "gh issue create *": ask
-    "gh pr merge *": ask
 
-    # Fourth: Safe Git & GitHub commands that are automatically allowed (allow)
+    # Third: Safe read-only or low-impact local commands (allow)
     # Put these specific allowed patterns at the bottom so they override deny/*:
     "git status": allow
     "git status *": allow
@@ -43,9 +36,8 @@ permission:
     "git branch": allow
     "git branch *": allow
     "git add *": allow
-    "git commit -m *": allow
+    "git commit *": allow
     "git checkout *": allow
-    "git checkout -b *": allow
     "gh pr status": allow
     "gh pr list": allow
     "gh issue list": allow

@@ -4,7 +4,7 @@
 
 ## 2. Git Operator Subagent Implementation
 
-- [x] 2.1 Create `.opencode/agents/git-operator.md` with exclusive, fine-grained bash execution permissions (mapping safe commands to `allow`, sensitive commands to `ask`, and destructive commands to `deny`).
+- [x] 2.1 Create `.opencode/agents/git-operator.md` with exclusive, safe bash execution permissions (mapping safe commands to `allow`, and state-transitioning commands to `ask` to enforce human verification gates).
 - [x] 2.2 Define the system prompt in `.opencode/agents/git-operator.md` to enforce the complete Git playbook (Conventional Commits, atomic commits, branch conventions, and pre-commit commit lint validation).
 
 ## 3. Permission Hardening

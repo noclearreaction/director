@@ -19,11 +19,10 @@ Additionally, to prevent any risk of destructive operations (like force-pushing 
 ## Decisions
 
 ### Decision 1: Creating the git-operator Subagent with Safe Gating
-- **Choice**: Create `.opencode/agents/git-operator.md` with explicit, safe, robust permissions:
-  - **Allowed (`allow`)**: `git status`, `git diff`, `git log`, `git add`, `git commit -m`, `git checkout *`, `git checkout -b *`, `git branch`, `gh pr status`, `gh pr list`.
-  - **Prompt-on-Execution (`ask`)**: `git push`, `git checkout main`, `git pull`, `git cherry-pick`, `gh pr create`, `gh issue create`.
-  - **Prohibited (`deny`)**: `git push --force`, `git push -f`, `git reset --hard`, `git checkout --`.
-- **Rationale**: Prevents any rogue agent actions or accidental local state corruption while maintaining flexibility for branching. Placing the broad catch-all `"*": deny` at the very top of the subagent's permission list ensures that specific `allow` and `ask` overrides below it take effect (since OpenCode evaluates the last matching rule). Critical actions like switching to `main`, pushing to remotes, or creating PRs must go through human confirmation.
+- **Choice**: Create `.opencode/agents/git-operator.md` with clean, broad, and robust permissions:
+  - **Allowed (`allow`)**: `git status`, `git diff`, `git log`, `git add`, `git commit *`, `git checkout *`, `git branch`, `gh pr status`, `gh pr list`, `gh issue list`, `gh issue view *`.
+  - **Prompt-on-Execution (`ask`)**: `git push`, `git push *`, `git checkout main`, `git pull`, `git pull *`, `git reset`, `git reset *`, `git merge *`, `git cherry-pick *`, `gh pr *`, `gh issue create *`.
+- **Rationale**: Rather than attempting to block dangerous command flags (like `-f` or `--force`) with fragile and easily-bypassed glob combinations, we assign all state-transitioning commands (like `push`, `reset`, `pull`, `merge`) to `ask`. Any variation of these commands (e.g., `git push -vf` or `git reset --hard`) will automatically trigger a human permission prompt. The user is presented with the exact execution string, ensuring complete sovereignty and eliminating bypass vectors. Placing the broad catch-all `"*": deny` at the top ensures specific overrides below it apply correctly.
 
 ### Decision 2: Revoking direct git permissions on other agents
 - **Choice**: Explicitly deny `git` and `gh` command execution in all other agent frontmatters (`builder.md`, `designer.md`, `orchestrator.md`, `issue.md`, `advisor.md`) and globally in `opencode.json`.

@@ -8,15 +8,15 @@ The system SHALL isolate all Git and GitHub command execution permissions strict
 - **THEN** it SHALL delegate the task to the `git-operator` subagent instead of running bash commands.
 
 ### Requirement: Fine-Grained Git Permission Gating
-The `git-operator` subagent SHALL be restricted to a fine-grained, safe subset of Git and GitHub CLI commands. Non-destructive commands (e.g., status, diff, add, log, atomic branch checkouts) SHALL be allowed (`allow`), while sensitive commands (e.g., checkout main, push, pull, PR creation) MUST require user permission (`ask`), and dangerous commands (e.g., force push, hard reset) MUST be blocked (`deny`).
+The `git-operator` subagent SHALL be restricted to a safe, controlled subset of Git and GitHub CLI commands. Non-destructive commands (e.g., status, diff, add, log, local branches, checkouts) SHALL be allowed (`allow`), while state-changing, remote-syncing, or history-altering commands (e.g., checkout main, push, pull, reset, merge, PR operations) MUST require explicit user validation and approval (`ask`).
 
 #### Scenario: Subagent running non-destructive command
 - **WHEN** `git-operator` executes `git status` or `git diff`
 - **THEN** the system SHALL allow the execution automatically.
 
-#### Scenario: Subagent attempting dangerous command
-- **WHEN** `git-operator` attempts to run `git push --force` or `git reset --hard`
-- **THEN** the system SHALL block the execution and fail with a permission violation.
+#### Scenario: Subagent attempting sensitive state-changing command
+- **WHEN** `git-operator` attempts to run `git push -vf` or `git reset --hard`
+- **THEN** the system SHALL intercept the execution and prompt the user for validation and permission.
 
 ## MODIFIED Requirements
 
