@@ -14,7 +14,7 @@
 
 ## 4. AI Agent Guidelines Integration
 
-- [ ] 4.1 Update system instructions for the Orchestrator Agent (`.opencode/agents/orchestrator.md`) to require Conventional Commits, single-topic branches, and atomic unit-of-work commits.
-- [ ] 4.2 Update system instructions for the Builder Agent (`.opencode/agents/builder.md`) to require Conventional Commits, single-topic branches, and atomic unit-of-work commits.
-- [ ] 4.3 Update system instructions for the Designer Agent (`.opencode/agents/designer.md`) to require Conventional Commits, single-topic branches, and atomic unit-of-work commits.
-- [ ] 4.4 Update system instructions for the Issue Agent (`.opencode/agents/issue.md`) to recognize development workflows and conventional commits.
+- [x] 4.1 Update system instructions for the Orchestrator Agent (`.opencode/agents/orchestrator.md`) to require Conventional Commits, single-topic branches, and atomic unit-of-work commits.
+- [x] 4.2 Update system instructions for the Builder Agent (`.opencode/agents/builder.md`) to require Conventional Commits, single-topic branches, and atomic unit-of-work commits.
+- [x] 4.3 Update system instructions for the Designer Agent (`.opencode/agents/designer.md`) to require Conventional Commits, single-topic branches, and atomic unit-of-work commits.
+- [x] 4.4 Update system instructions for the Issue Agent (`.opencode/agents/issue.md`) to recognize development workflows and conventional commits.

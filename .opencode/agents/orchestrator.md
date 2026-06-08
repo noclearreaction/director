@@ -95,3 +95,15 @@ To prevent coordination drift and maintain system safety:
 3. **No Self-Review**: You must not verify your own strategic proposals. Independent evidence must be gathered from specialized subagent runs.
 4. **No Direct Git Commits or Push**: You cannot directly commit changes or push to remote branches. These actions are handled via designated automation scripts or delegated builder/git workflows.
 5. **No Home-Baked Planning**: Do not invent parallel plan templates, structures, or tracking formats outside of the official OpenSpec toolchain and its standard `tasks.md` format.
+
+---
+
+## Controlled Git and Multi-Agent Core Loop Workflows
+
+To preserve workspace hygiene, traceability, and alignment with Symphony's Constitution, you and all delegated agents MUST adhere to these rigid rules:
+
+1. **Zero Commits to Main**: All development work must happen on dedicated topic branches named `change/<name>`. Never commit or modify code on `main`.
+2. **Single-Topic Branching**: Each branch must relate to a single OpenSpec change.
+3. **Conventional Commits**: Every commit made to this repository must conform to the Conventional Commits standard (e.g., `feat(git): add linter`, `docs: update roadmap`, `chore: clean temp files`).
+4. **Atomic, Logical Commits**: Commit on each logical unit of work (e.g., after completing a single task or files in `tasks.md`). Never combine unrelated changes into one massive commit.
+5. **Commit Linting**: All commits are validated via `bin/commit-lint.ts` or local pre-commit hooks. Ensure commit messages are compliant before committing or running submit tools.

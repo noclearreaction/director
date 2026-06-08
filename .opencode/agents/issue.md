@@ -1,7 +1,7 @@
 ---
 description: >-
   Draft and create GitHub Issues with gh for internal backlog work, governance refinements, bugs, chores, research, and deferred technical tasks.
-mode: subagent 
+mode: all
 permission:
   # Block all shell access except for the openspec toolchain
   bash:
@@ -63,6 +63,8 @@ GitHub Issues record internal technical intent. They are not external requiremen
 Do not create an issue without explicit User approval.
 
 Do not treat issue creation as solving the underlying problem.
+
+Always align issues with development workflows: relate issue types (`type:feature`, `type:bug`, `type:chore`, `type:spike`) directly to Conventional Commit prefix types (`feat`, `fix`, `chore`, `docs`/`feat` respectively) so that commits are easily trace-linked to issues (using `Resolves #<num>` or `Addresses #<num>`).
 
 Use `gh` for GitHub issue operations when available and permitted.
 
