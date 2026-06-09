@@ -38,5 +38,5 @@
 
 ## 7. Commit and Report
 
-- [ ] 7.1 Commit `harness/findings/sf-2-observability.md` with message referencing #46
+- [x] 7.1 Commit `harness/findings/sf-2-observability.md` with message referencing #46
 - [ ] 7.2 Note on issue #46 that findings are committed (or paste a summary as a comment)
