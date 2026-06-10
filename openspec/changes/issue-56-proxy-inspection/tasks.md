@@ -23,5 +23,5 @@
 
 ## 4. Close Out
 
-- [ ] 4.1 Commit and push on `feature/issue-55-openrouter-proxy`
-- [ ] 4.2 Close GitHub issue #56
+- [x] 4.1 Commit and push on `feature/issue-55-openrouter-proxy`
+- [x] 4.2 Close GitHub issue #56 — `Closes #56` in commit message; will close on PR #59 merge
