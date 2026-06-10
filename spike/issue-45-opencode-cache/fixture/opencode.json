@@ -1,9 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/deepseek-v4-flash-free",
+  "instructions": [
+    "AGENTS.md"
+  ],
   "agent": {
     "build": {
-      "prompt": "{file:./AGENTS.md}",
+      "prompt": "{file:./prompt.md}",
       "permission": {
         "bash": "deny",
         "read": "deny",
