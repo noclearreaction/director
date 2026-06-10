@@ -33,4 +33,4 @@
 
 - [x] 6.1 Start both containers on `spike-net`, run a single-turn `opencode run "Say: acknowledged"` through the proxy, confirm proxy logs show forwarded request and response received — confirmed: `tokens_input=319 tokens_output=8` in opencode DB, proxy logs show request forwarded to OpenRouter
 - [x] 6.2 Run a 3-turn session using `opencode run --session <id>` pattern, query cache fields from opencode DB — confirmed: proxy does not break session continuity; `cache_read=0` across all turns because `qwen/qwen3.6-flash` via OpenRouter requires larger prompts (likely 1024+ tokens) to activate caching; cache behavior at prompt scale is a finding for SF-4b
-- [ ] 6.3 Close GitHub issue #55
+- [x] 6.3 Close GitHub issue #55 — PR #59 contains `Closes #55`; will close on merge
