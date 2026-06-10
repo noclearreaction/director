@@ -121,6 +121,7 @@ docker network create spike-net
 docker run -d --name openrouter-proxy \
   --network spike-net \
   --env-file .env \
+  -v /tmp/proxy-logs:/logs \
   openrouter-proxy
 
 # Start fixture container on same network

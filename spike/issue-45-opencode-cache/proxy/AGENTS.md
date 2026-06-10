@@ -13,8 +13,13 @@ Run from repo root.
 ## Run
 
 ```bash
-docker run -d --name openrouter-proxy --network spike-net --env-file .env openrouter-proxy
+docker run -d --name openrouter-proxy --network spike-net \
+  --env-file .env \
+  -v /tmp/proxy-logs:/logs \
+  openrouter-proxy
 ```
+
+Each forwarded request produces one JSON file in the log directory containing the full request body and response body. Inspect with `cat /tmp/proxy-logs/*.json | python3 -m json.tool`.
 
 The container listens on port 8080. It must share a Docker network with the fixture container so opencode can reach it at `http://openrouter-proxy:8080`.
 
@@ -30,6 +35,7 @@ The container listens on port 8080. It must share a Docker network with the fixt
 |---|---|---|
 | `OPENROUTER_API_KEY` | Yes | OpenRouter API key. Without it the proxy starts but all requests will be rejected by OpenRouter. |
 | `PORT` | No | Port to listen on. Defaults to `8080`. |
+| `LOG_DIR` | No | Directory to write per-request JSON log files. Defaults to `/logs`. Created on startup if absent. Mount a host directory here to collect logs. |
 
 ## Routes
 

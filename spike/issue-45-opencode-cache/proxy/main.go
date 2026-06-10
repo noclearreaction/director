@@ -1,19 +1,34 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 const upstream = "https://openrouter.ai/api/v1/chat/completions"
+
+var logDir string
 
 func main() {
 	apiKey := os.Getenv("OPENROUTER_API_KEY")
 	if apiKey == "" {
 		log.Println("warning: OPENROUTER_API_KEY not set — forwarding requests without Authorization header")
 	}
+
+	logDir = os.Getenv("LOG_DIR")
+	if logDir == "" {
+		logDir = "/logs"
+	}
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		log.Fatalf("failed to create log dir %s: %v", logDir, err)
+	}
+	log.Printf("writing request/response logs to %s", logDir)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -35,9 +50,38 @@ func main() {
 	}
 }
 
+// logEntry is the structure written to each JSON log file.
+type logEntry struct {
+	Timestamp string          `json:"timestamp"`
+	Request   json.RawMessage `json:"request"`
+	Response  json.RawMessage `json:"response,omitempty"`
+	Error     string          `json:"error,omitempty"`
+}
+
+func writeLog(ts time.Time, entry logEntry) {
+	filename := fmt.Sprintf("%s/%s.json", logDir, ts.UTC().Format("20060102T150405.000000000Z"))
+	data, err := json.MarshalIndent(entry, "", "  ")
+	if err != nil {
+		log.Printf("log marshal error: %v", err)
+		return
+	}
+	if err := os.WriteFile(filename, data, 0644); err != nil {
+		log.Printf("log write error: %v", err)
+	}
+}
+
 func handleChatCompletion(w http.ResponseWriter, r *http.Request, apiKey string) {
-	// Build upstream request with the same body
-	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, upstream, r.Body)
+	ts := time.Now()
+
+	// Buffer request body so we can log it and forward it
+	reqBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "failed to read request body", http.StatusInternalServerError)
+		return
+	}
+
+	// Build upstream request
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, upstream, bytes.NewReader(reqBody))
 	if err != nil {
 		http.Error(w, "failed to build upstream request", http.StatusInternalServerError)
 		return
@@ -61,12 +105,37 @@ func handleChatCompletion(w http.ResponseWriter, r *http.Request, apiKey string)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		writeLog(ts, logEntry{
+			Timestamp: ts.UTC().Format(time.RFC3339Nano),
+			Request:   json.RawMessage(reqBody),
+			Error:     err.Error(),
+		})
 		http.Error(w, "upstream request failed: "+err.Error(), http.StatusBadGateway)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Forward all response headers verbatim, except Content-Length (incompatible with streaming)
+	// Buffer response body so we can log it and forward it
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("upstream read error: %v", err)
+	}
+
+	// Represent response as JSON: inline if valid JSON, string otherwise
+	var respJSON json.RawMessage
+	if json.Valid(respBody) {
+		respJSON = json.RawMessage(respBody)
+	} else {
+		quoted, _ := json.Marshal(string(respBody))
+		respJSON = json.RawMessage(quoted)
+	}
+	writeLog(ts, logEntry{
+		Timestamp: ts.UTC().Format(time.RFC3339Nano),
+		Request:   json.RawMessage(reqBody),
+		Response:  respJSON,
+	})
+
+	// Forward all response headers verbatim, except Content-Length
 	for key, vals := range resp.Header {
 		if http.CanonicalHeaderKey(key) == "Content-Length" {
 			continue
@@ -76,25 +145,5 @@ func handleChatCompletion(w http.ResponseWriter, r *http.Request, apiKey string)
 		}
 	}
 	w.WriteHeader(resp.StatusCode)
-
-	// Stream response body; flush after each write for SSE
-	flusher, canFlush := w.(http.Flusher)
-	buf := make([]byte, 4096)
-	for {
-		n, readErr := resp.Body.Read(buf)
-		if n > 0 {
-			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
-				return
-			}
-			if canFlush {
-				flusher.Flush()
-			}
-		}
-		if readErr != nil {
-			if readErr != io.EOF {
-				log.Printf("upstream read error: %v", readErr)
-			}
-			return
-		}
-	}
+	w.Write(respBody)
 }
