@@ -83,13 +83,13 @@ RUN curl -fL \
 # Purpose: Node.js with pnpm; openspec and opencode installed globally
 # Output:
 #   /srv/files/node/bin/node        — the node binary
-#   /srv/files/node/lib/            — pnpm global node_modules
-# Strategy: set npm global prefix to /srv/files/node so that
-#   `pnpm add -g` places packages under /srv/files/node/lib/node_modules/
-#   with a predictable, hash-free path.
-# opencode-ai: npm wrapper that runs postinstall to download the ELF binary
-#   into node_modules/opencode-ai/bin/opencode.exe — that ELF is the actual
-#   executable; no node invocation needed for the wrapper.
+#   /srv/files/node/lib/            — globally installed packages (npm prefix)
+# Strategy: use `npm install -g` with a custom prefix so packages are installed
+#   as real files (no symlinks) rather than pnpm's virtual store (symlinks into
+#   a content-addressable store that doesn't survive COPY to another stage).
+# pnpm is installed and available in the container via corepack but is NOT used
+#   for the global installs here — its virtual store model breaks across COPY.
+# opencode-ai: its postinstall downloads the ELF binary into bin/opencode.exe.
 # =============================================================================
 FROM node:${NODE_VERSION}-bookworm-slim AS node-runtime
 ARG PNPM_VERSION
@@ -97,19 +97,15 @@ ARG OPENSPEC_VERSION
 ARG OPENCODE_VERSION
 RUN corepack enable \
  && corepack prepare pnpm@${PNPM_VERSION} --activate
-# Set npm/node prefix to our staging dir so node_modules path is predictable
+# Create staging prefix; node binary goes alongside the packages
 RUN mkdir -p /srv/files/node/bin /srv/files/node/lib
-# Copy node binary into the staging prefix
 RUN cp /usr/local/bin/node /srv/files/node/bin/node
-# Configure pnpm to use /srv/files/node as its global prefix
-# global-dir sets where packages land; global-bin-dir for shims (not used)
-RUN pnpm config set global-dir /srv/files/node/lib \
- && pnpm config set global-bin-dir /srv/files/node/bin
-# Install openspec and opencode globally into /srv/files/node/lib/
-# PATH includes node so postinstall scripts can run
-ENV PATH="/usr/local/bin:${PATH}"
-RUN pnpm add -g @fission-ai/openspec@${OPENSPEC_VERSION} \
- && pnpm add -g opencode-ai@${OPENCODE_VERSION}
+# Install openspec and opencode globally using npm with a custom prefix.
+# npm's global install copies real files (no symlinks to an external store).
+RUN npm install -g \
+        --prefix /srv/files/node \
+        "@fission-ai/openspec@${OPENSPEC_VERSION}" \
+        "opencode-ai@${OPENCODE_VERSION}"
 
 # =============================================================================
 # Stage: base

@@ -44,11 +44,11 @@
 
 ## 7. Verification
 
-- [ ] 7.1 Build `--target ci` image; confirm Go, Deno, Task, openspec, opencode, gh present; confirm pnpm/npm/npx absent from PATH
+- [x] 7.1 Build `--target ci` image; confirm Go, Deno, Task, openspec, opencode, gh present; confirm pnpm/npm/npx absent from PATH
 - [ ] 7.2 Build `--target final` image; open in VS Code Dev Containers; confirm `task devcontainer:doctor` passes
 - [ ] 7.3 Confirm `docker ps` succeeds inside the container (DooD working)
-- [ ] 7.4 Confirm `update-alternatives --display go` shows correct versioned path and lists `gofmt` as a slave; confirm `update-alternatives --display deno` shows correct versioned path
-- [ ] 7.5 Confirm `gofmt --help` works after switching go alternative
+- [x] 7.4 Confirm `update-alternatives --display go` shows correct versioned path and lists `gofmt` as a slave; confirm `update-alternatives --display deno` shows correct versioned path
+- [x] 7.5 Confirm `gofmt --help` works after switching go alternative
 - [ ] 7.6 Confirm `post-start` script runs without error and `git tag -l env-lgc` shows the tag set to `origin/main`
 
 ## 8. Taskfile
