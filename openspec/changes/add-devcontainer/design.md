@@ -57,6 +57,8 @@ The repo uses Deno/TypeScript for pipeline tooling (`bin/`), Go for core code, a
 
 **Rationale**: Wrapper interception scripts (e.g. `bin/npm` that prints an error) are fragile and non-standard. Removing these tools from `PATH` is the correct standard approach. Developers who genuinely need pnpm can use the full path; this being inconvenient is intentional.
 
+**Implementation note — openspec/opencode are node shims, not binaries**: `which openspec` on the host reveals a shell shim (`exec node .../openspec.js "$@"`), not a standalone binary. The `/usr/local/bin/openspec` and `/usr/local/bin/opencode` wrappers created in task 3.4 must replicate this pattern — either as shell scripts that `exec /opt/node/bin/node /opt/node/lib/node_modules/.../bin/openspec.js "$@"`, or as symlinks into the pnpm-managed shim location within `/opt/node/`. Copying only the shim script without the correct `node` path will silently fail.
+
 ---
 
 ### D5: `ci` stage sits between `base` and `final`
