@@ -80,16 +80,17 @@ RUN curl -fL \
 
 # =============================================================================
 # Stage: node-runtime
-# Purpose: Node.js with pnpm; openspec and opencode installed globally
+# Purpose: Node.js with pnpm; openspec and opencode installed
 # Output:
-#   /srv/files/node/bin/node        — the node binary
-#   /srv/files/node/lib/            — globally installed packages (npm prefix)
-# Strategy: use `npm install -g` with a custom prefix so packages are installed
-#   as real files (no symlinks) rather than pnpm's virtual store (symlinks into
-#   a content-addressable store that doesn't survive COPY to another stage).
-# pnpm is installed and available in the container via corepack but is NOT used
-#   for the global installs here — its virtual store model breaks across COPY.
-# opencode-ai: its postinstall downloads the ELF binary into bin/opencode.exe.
+#   /srv/files/node/bin/node             — the node binary
+#   /srv/files/node/lib/node_modules/    — installed packages (real files)
+# Strategy: pnpm project-local install with node-linker=hoisted.
+#   Hoisted mode writes real files into node_modules (no symlinks into the
+#   pnpm content-addressable store), so the tree survives COPY to another stage.
+#   pnpm global install uses a virtual store (symlinks → store path) which
+#   breaks across COPY; project + hoisted avoids this without using npm.
+# opencode-ai: its postinstall downloads the ELF binary (opencode-linux-x64)
+#   from the optional dependency and places it at bin/opencode.exe.
 # =============================================================================
 FROM node:${NODE_VERSION}-bookworm-slim AS node-runtime
 ARG PNPM_VERSION
@@ -97,15 +98,24 @@ ARG OPENSPEC_VERSION
 ARG OPENCODE_VERSION
 RUN corepack enable \
  && corepack prepare pnpm@${PNPM_VERSION} --activate
-# Create staging prefix; node binary goes alongside the packages
-RUN mkdir -p /srv/files/node/bin /srv/files/node/lib
-RUN cp /usr/local/bin/node /srv/files/node/bin/node
-# Install openspec and opencode globally using npm with a custom prefix.
-# npm's global install copies real files (no symlinks to an external store).
-RUN npm install -g \
-        --prefix /srv/files/node \
+# Project-scoped install into /srv/build; hoisted linker = real files, no symlinks
+WORKDIR /srv/build
+# node-linker=hoisted: real files in node_modules, no symlinks to pnpm store
+RUN printf '{"name":"devcontainer-tools","private":true,"version":"0.0.0"}\n' > package.json \
+ && printf 'node-linker=hoisted\n' > .npmrc
+# Install packages with --ignore-scripts to satisfy pnpm v11's build script
+# approval requirement without blanket approval. openspec's bin/openspec.js is
+# bundled in the package and needs no build script. opencode-ai's postinstall
+# must run (it downloads the platform ELF from the optional dependency), so we
+# invoke it explicitly with a targeted node call after install.
+RUN pnpm add --ignore-scripts \
         "@fission-ai/openspec@${OPENSPEC_VERSION}" \
-        "opencode-ai@${OPENCODE_VERSION}"
+        "opencode-ai@${OPENCODE_VERSION}" \
+ && node node_modules/opencode-ai/postinstall.mjs
+# Stage outputs for COPY --from in the base stage
+RUN mkdir -p /srv/files/node/bin /srv/files/node/lib \
+ && cp /usr/local/bin/node /srv/files/node/bin/node \
+ && cp -r /srv/build/node_modules /srv/files/node/lib/node_modules
 
 # =============================================================================
 # Stage: base
@@ -135,16 +145,17 @@ COPY --from=node-runtime /srv/files/node /opt/node
 # Only node binary goes on PATH — pnpm, npm, npx intentionally absent
 ENV PATH="/opt/node/bin:${PATH}"
 # Create explicit wrapper scripts for the two permitted CLI tools.
-# Paths are resolved at build time via find to handle pnpm's versioned
-# internal directory structure (avoids hard-coding hash path).
+# With node-linker=hoisted, packages land at a predictable flat path:
+#   /opt/node/lib/node_modules/@fission-ai/openspec/bin/openspec.js
+#   /opt/node/lib/node_modules/opencode-ai/bin/opencode.exe
 # openspec: JS entrypoint — invoke via node
-RUN OPENSPEC_JS=$(find /opt/node -name 'openspec.js' -path '*/@fission-ai/openspec/bin/*' | head -1) \
+RUN OPENSPEC_JS=$(find /opt/node/lib/node_modules -name 'openspec.js' -path '*/@fission-ai/openspec/bin/*' | head -1) \
  && [ -n "$OPENSPEC_JS" ] || { echo "ERROR: openspec.js not found"; exit 1; } \
  && printf '#!/bin/sh\nexec /opt/node/bin/node %s "$@"\n' "$OPENSPEC_JS" \
         > /usr/local/bin/openspec \
  && chmod +x /usr/local/bin/openspec
 # opencode: ELF binary placed by postinstall at bin/opencode.exe — invoke directly
-RUN OPENCODE_EXE=$(find /opt/node -name 'opencode.exe' -path '*/opencode-ai/bin/*' | head -1) \
+RUN OPENCODE_EXE=$(find /opt/node/lib/node_modules -name 'opencode.exe' -path '*/opencode-ai/bin/*' | head -1) \
  && [ -n "$OPENCODE_EXE" ] || { echo "ERROR: opencode.exe not found"; exit 1; } \
  && printf '#!/bin/sh\nexec %s "$@"\n' "$OPENCODE_EXE" \
         > /usr/local/bin/opencode \
