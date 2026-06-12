@@ -1,12 +1,55 @@
 # Review: add-devcontainer
 
 **Reviewer**: GitHub Copilot  
-**Date**: 2026-06-12  
+**Date**: 2026-06-12 (initial) · 2026-06-13 (updated)  
 **Artifacts reviewed**: `proposal.md`, `design.md`, `tasks.md`, `specs/devcontainer-environment/spec.md`
 
 ---
 
-## Verdict
+## Round 2 — 2026-06-13
+
+### What was addressed
+
+All significant findings from the initial review have been resolved:
+
+| Finding | Resolution |
+|---|---|
+| Open question about `postStartCommand` / git hooks scope | Closed via D9: minimal scope — `git tag -f env-lgc origin/main` + `task devcontainer:doctor`; future hooks left as commented stubs |
+| Task 5.5 unbounded scope | Constrained: exact script content specified in the task |
+| Task 5.7 "to be determined" | Explicitly deferred: empty array now, follow-on change when extension needs are observed |
+| Spec requirement paragraphs restating build layout (paths, stage names) | Go and Deno requirements rewritten to behavioral; stage names removed from Dockerfile requirement |
+| Trivial `devcontainer.json` scenario | Replaced with "all expected tools present after container opens" |
+| Testing gap — no coverage of `post-start` script | Task 7.6 added |
+| `gofmt` slave had no verification task | Task 7.4 updated, task 7.5 retained |
+| No automated runtime check | D10 + Group 8 added: `doctor` Taskfile task runs on container start and exits non-zero on failure |
+
+---
+
+### Updated Verdict
+
+**Ready to implement.** No blocking issues remain.
+
+Two minor observations follow; neither should block work.
+
+---
+
+### Remaining Minor Issues
+
+**1. ~~`gofmt` slave scenario references implementation mechanism in the WHEN clause~~ — withdrawn**
+
+The scenario invokes `update-alternatives --set` and `update-alternatives --display` directly. On a Debian-based container, `update-alternatives` is the Debian standard for managing versioned binaries — not an incidental implementation choice. A plain `ln -sf` would satisfy the behavioral outcome but would bypass the standard, making the versioned layout fragile and the shared `/opt` volume path harder to exploit later. The spec is entitled to opine on standards compliance, not just on function. No change needed.
+
+**2. ~~Task requirement paragraph retains an installation constraint~~ — withdrawn**
+
+> Task SHALL NOT be installed via npm or pnpm.
+
+On reflection, this is a security constraint: installing Task via npm would exercise pnpm as an install vector, expanding the Node surface area that the PATH isolation policy is designed to contain. It belongs in the spec alongside the PATH isolation requirement. No change needed.
+
+---
+
+## Round 1 — 2026-06-12 (retained for record)
+
+### Verdict
 
 Ready to implement with two issues that should be resolved before or during implementation:
 
@@ -15,9 +58,7 @@ Ready to implement with two issues that should be resolved before or during impl
 
 The spec should be refactored to separate behavioral requirements from structural/implementation constraints (see below).
 
----
-
-## Completeness
+### Completeness
 
 Structurally complete. Proposal, design, tasks, and spec are present and internally consistent.
 
@@ -28,15 +69,11 @@ Structurally complete. Proposal, design, tasks, and spec are present and interna
 
 No tool versions are pinned in any artifact — task 1.2 defers that to implementation time, which is acceptable, provided the Dockerfile ARG comment block becomes the canonical record.
 
----
-
-## Sufficiency
+### Sufficiency
 
 Sufficient. The 8 keyed design decisions cover all contested choices with rationale and rejected alternatives documented. Tasks are granular, dependency-ordered, and traceable to spec requirements.
 
----
-
-## Testing Strategy
+### Testing Strategy
 
 **Coverage**: adequate for a manual first pass. Group 7 (Verification) covers the important cases: tool presence/absence on PATH, DooD socket access, `update-alternatives` state, and shebang portability.
 
@@ -46,9 +83,7 @@ Sufficient. The 8 keyed design decisions cover all contested choices with ration
 - Task 5.5 (`post-start` script) has no corresponding entry in the verification group. Once the script exists, nothing checks its behavior.
 - The `gofmt` slave scenario (spec §2) has no verification task in group 7.
 
----
-
-## Spec: Behavior vs. Implementation Detail
+### Spec: Behavior vs. Implementation Detail
 
 This is the most significant issue. The spec mixes behavioral requirements (good) with structural implementation constraints (belongs in `design.md`).
 
@@ -70,9 +105,7 @@ These are testable, implementation-agnostic, and correctly capture intent. They 
 
 **Recommendation**: Trim requirement paragraphs to capability-level statements — what the system enables for a developer or CI runner — and let `design.md` own structural decisions. A spec whose requirement paragraphs describe outcomes (not paths, stage names, or command sequences) will remain valid if the build layout is revised.
 
----
-
-## Minor Notes
+### Minor Notes
 
 - `devcontainer.json` scenario ("VS Code detects the devcontainer configuration") is trivially satisfied by the file's existence — it is not a runtime behavior. Consider replacing it with a scenario that verifies post-open tooling state.
 - "Scenario: Dockerfile ARGs enumerate all tool versions" is a static analysis check, not a behavioral scenario. It is useful, but consider phrasing it as a linting or review gate rather than a Gherkin scenario.
