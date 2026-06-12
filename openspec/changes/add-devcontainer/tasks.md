@@ -53,7 +53,7 @@
 
 ## 8. Taskfile
 
-- [ ] 8.1 Create `.devcontainer/Taskfile.yaml` with a `doctor` task that checks: `go version`, `gofmt -h`, `deno --version`, `task --version`, `openspec --version`, `opencode --version`, `gh --version`, `docker info` (socket access); exit non-zero on any failure
-- [ ] 8.2 Create root `Taskfile.yaml` including `.devcontainer/Taskfile.yaml` under the `devcontainer:` namespace; add a top-level `health` alias that calls `devcontainer:doctor`
+- [x] 8.1 Create `.devcontainer/Taskfile.yaml` with a `doctor` task that checks: `go version`, `gofmt -h`, `deno --version`, `task --version`, `openspec --version`, `opencode --version`, `gh --version`, `docker info` (socket access); exit non-zero on any failure
+- [x] 8.2 Create root `Taskfile.yaml` including `.devcontainer/Taskfile.yaml` under the `devcontainer:` namespace; add a top-level `health` alias that calls `devcontainer:doctor`
 - [ ] 8.3 Verify `task devcontainer:doctor` runs cleanly inside the built container
 - [ ] 8.4 Verify `task devcontainer:doctor` exits non-zero when a tool is removed (manual destructive test, restore after)

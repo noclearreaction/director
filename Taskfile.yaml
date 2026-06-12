@@ -1,0 +1,13 @@
+# Taskfile.yaml — root task runner for symphony-maestro
+version: "3"
+
+includes:
+  devcontainer:
+    taskfile: .devcontainer/Taskfile.yaml
+    dir: "."
+
+tasks:
+  health:
+    desc: "Alias for devcontainer:doctor — check all tools are wired correctly"
+    cmds:
+      - task: devcontainer:doctor
