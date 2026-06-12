@@ -38,8 +38,8 @@
 
 ## 6. Fix bin/ script shebangs
 
-- [ ] 6.1 Update `bin/commit-lint.ts` shebang from hardcoded host path to `#!/usr/bin/env -S deno run --allow-read --allow-env`
-- [ ] 6.2 Update `bin/provision-labels.ts` shebang from hardcoded host path to `#!/usr/bin/env -S deno run --allow-run=gh`
+- [x] 6.1 Update `bin/commit-lint.ts` shebang from hardcoded host path to `#!/usr/bin/env -S deno run --allow-read --allow-env`
+- [x] 6.2 Update `bin/provision-labels.ts` shebang from hardcoded host path to `#!/usr/bin/env -S deno run --allow-run=gh`
 - [ ] 6.3 Verify both scripts run correctly inside the container
 
 ## 7. Verification
