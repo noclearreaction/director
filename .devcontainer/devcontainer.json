@@ -22,6 +22,7 @@
   "postCreateCommand": "for dir in /home/vscode/.vscode-server/extensions /home/vscode/.vscode-server/data/User; do [ -d \"$dir\" ] && sudo chown -R vscode:vscode \"$dir\"; done || true",
   "postStartCommand": ".devcontainer/post-start",
   "remoteUser": "vscode",
+  "overrideCommand": false,
   "shutdownAction": "stopCompose",
   "customizations": {
     "vscode": {
