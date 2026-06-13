@@ -30,7 +30,7 @@ The correct tools exist in pnpm to solve all of these properly.
 
 ### D1: Committed pnpm project files instead of inline generation
 
-**Decision**: `.devcontainer/node/package.json`, `pnpm-lock.yaml`, and `pnpm-workspace.yaml` are committed to the repo. The Dockerfile COPYs them in and runs `pnpm install --frozen-lockfile`.
+**Decision**: `.devcontainer/node/package.json`, `pnpm-lock.yaml`, and `pnpm-workspace.yaml` are committed to the repo. `package.json` starts with empty `dependencies`; `pnpm-workspace.yaml` starts with empty `allowBuilds: []`. Packages and trust entries are added via `task node:package:add` and `task node:trust:add` respectively, which update the committed files.
 
 **Rationale**: Inline `printf`-generated `package.json` cannot have a lockfile. Without a lockfile, every image build resolves transitive deps from the network with no content verification. Committed files make dep changes visible in code review (like `go.sum` or `Cargo.lock`).
 

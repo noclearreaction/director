@@ -49,7 +49,7 @@ The builder container SHALL run `pnpm deploy` to produce a real-files-only node_
 ---
 
 ### Requirement: Build script approvals are committed and reviewed
-The `pnpm-workspace.yaml` file SHALL be committed to the repo and SHALL contain an explicit `allowBuilds` map. Only packages listed with `true` MAY run install scripts. All other packages SHALL be denied.
+The committed `pnpm-workspace.yaml` file SHALL be committed to the repo and SHALL contain the pnpm supply chain hardening settings. It is the sole file modified by `task node:trust:add` and `task node:trust:rm` to manage build script approvals. Its internal format is owned by pnpm.
 
 #### Scenario: Unapproved package install script is blocked
 - **WHEN** a transitive dependency with an install script is not listed in `allowBuilds`

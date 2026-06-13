@@ -1,9 +1,7 @@
 ## 1. Committed pnpm project files
 
-- [ ] 1.1 Create `.devcontainer/node/package.json` with `packageManager` field pinning pnpm version, and direct deps: `@fission-ai/openspec`, `opencode-ai`, `renovate`, `re2` with exact versions
-- [ ] 1.2 Create `.devcontainer/node/pnpm-workspace.yaml` with `allowBuilds` (opencode-ai: true, re2: true), `minimumReleaseAge: 10080`, `blockExoticSubdeps: true`, `trustPolicy: no-downgrade`
-- [ ] 1.3 Generate initial `pnpm-lock.yaml` using the `node-builder` image built in task 3 (or a throwaway `node:${NODE_VERSION}-bookworm-slim` container if building before section 3 is complete)
-- [ ] 1.4 Verify `pnpm install --frozen-lockfile` succeeds against the committed lockfile
+- [x] 1.1 Create `.devcontainer/node/package.json` with empty `dependencies` — no `packageManager` field; pnpm version is owned by `PNPM_VERSION` in the Dockerfile
+- [x] 1.2 Create `.devcontainer/node/pnpm-workspace.yaml` with supply chain hardening settings (`minimumReleaseAge: 10080`, `blockExoticSubdeps: true`, `trustPolicy: no-downgrade`) — trust entries are managed by `task node:trust:add/rm`
 
 ## 2. Named Docker volumes and devcontainer.json
 
@@ -13,11 +11,11 @@
 
 ## 3. Dockerfile: add node-builder stage, remove node-runtime stage
 
-- [ ] 3.1 Add `ARG NODE_VERSION` and `ARG PNPM_VERSION` back to the Dockerfile ARG block with Renovate annotations
-- [ ] 3.2 Add a `node-builder` stage: `FROM node:${NODE_VERSION}-bookworm-slim AS node-builder` with `RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate`
-- [ ] 3.3 Remove the old node-runtime stage from the Dockerfile entirely
-- [ ] 3.4 Remove all old npm package ARGs (`OPENSPEC_VERSION`, `OPENCODE_VERSION`, `RENOVATE_VERSION`, `RE2_VERSION`) — versions now owned by `package.json`
-- [ ] 3.5 Add `RUN mkdir -p /opt/node && ln -s /opt/node/node_modules/.bin /opt/node/bin` and `ENV PATH=/opt/node/bin:$PATH` to the base stage
+- [x] 3.1 Add `ARG NODE_VERSION` and `ARG PNPM_VERSION` back to the Dockerfile ARG block with Renovate annotations
+- [x] 3.2 Add a `node-builder` stage: `FROM node:${NODE_VERSION}-bookworm-slim AS node-builder` with `RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate`
+- [x] 3.3 Remove the old node-runtime stage from the Dockerfile entirely
+- [x] 3.4 Remove all old npm package ARGs (`OPENSPEC_VERSION`, `OPENCODE_VERSION`, `RENOVATE_VERSION`, `RE2_VERSION`) — versions now owned by `package.json`
+- [x] 3.5 Add `RUN mkdir -p /opt/node && ln -s /opt/node/node_modules/.bin /opt/node/bin` and `ENV PATH=/opt/node/bin:$PATH` to the base stage
 
 ## 4. node:build task
 
