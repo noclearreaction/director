@@ -23,3 +23,5 @@ services:
       target: final
     image: symphony-maestro
     command: sleep infinity
+    volumes:
+      - ${LOCAL_WORKSPACE_FOLDER:-..}:/workspaces/symphony-maestro:cached
