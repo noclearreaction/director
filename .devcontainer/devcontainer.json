@@ -1,11 +1,8 @@
 {
-  "name": "symphony-maestro",
+  "name": "Symphony Studio",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "devcontainer",
-  "workspaceFolder": "/workspaces/symphony-maestro",
-  "containerEnv": {
-    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
-  },
+  "service": "symphony-studio",
+  "workspaceFolder": "/workspace",
   "features": {
     "ghcr.io/devcontainers/features/common-utils:1": {
       "configureZshAsDefaultShell": true
@@ -18,6 +15,7 @@
     }
   },
   "mounts": [
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,readonly",
     "source=${localWorkspaceFolderBasename}-vscode-extensions,target=/home/vscode/.vscode-server/extensions,type=volume",
     "source=${localWorkspaceFolderBasename}-vscode-user-data,target=/home/vscode/.vscode-server/data/User,type=volume"
   ],

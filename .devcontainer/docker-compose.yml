@@ -3,25 +3,24 @@
 # Renovate manages this file via the dockerfile datasource.
 # =============================================================================
 x-versions: &versions
-  # renovate: datasource=golang-version depName=go
-  GO_VERSION: "1.26.4"
-  # renovate: datasource=github-releases depName=denoland/deno
-  DENO_VERSION: "2.8.2"
-  # renovate: datasource=github-releases depName=go-task/task
-  TASK_VERSION: "3.51.1"
+  args:
+    # renovate: datasource=golang-version depName=go
+    GO_VERSION: "1.26.4"
+    # renovate: datasource=github-releases depName=denoland/deno
+    DENO_VERSION: "2.8.2"
+    # renovate: datasource=github-releases depName=go-task/task
+    TASK_VERSION: "3.51.1"
 
-x-build: &build
+x-runtime: &runtime
   context: .
   dockerfile: Dockerfile
-  args:
-    <<: *versions
 
 services:
-  devcontainer:
+  symphony-studio:
     build:
-      <<: *build
+      <<: [*runtime, *versions]
       target: final
-    image: symphony-maestro
+    image: symphony-studio
     command: sleep infinity
     volumes:
-      - ${LOCAL_WORKSPACE_FOLDER:-..}:/workspaces/symphony-maestro:cached
+      - ${LOCAL_WORKSPACE_FOLDER:-..}:/workspace:cached
