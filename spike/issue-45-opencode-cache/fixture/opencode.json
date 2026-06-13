@@ -1,8 +1,22 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/deepseek-v4-flash-free",
+  "model": "openrouter-proxy/google/gemini-2.5-flash",
+  "provider": {
+    "openrouter-proxy": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenRouter Proxy",
+      "options": {
+        "baseURL": "http://openrouter-proxy:8080/v1"
+      },
+      "models": {
+        "google/gemini-2.5-flash": {
+          "name": "Gemini 2.5 Flash"
+        }
+      }
+    }
+  },
   "instructions": [
-    "AGENTS.md"
+    "INSTRUCTIONS.md"
   ],
   "agent": {
     "build": {
